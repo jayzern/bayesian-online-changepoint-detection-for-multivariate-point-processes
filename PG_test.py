@@ -17,7 +17,8 @@ from Evaluation_tool import EvaluationTool
 
 def test():
 
-    filepath = '../data/'
+    #filepath = '../data/'
+    filepath = './combined_df.csv'
 
     """Artificial datasets"""
     #filepath += 'univariate_linear.csv'
@@ -39,7 +40,7 @@ def test():
     #filepath += 'MSFT_dowjones_volume_scale1000000.csv'
 
     """Cervest"""
-    filepath += 'ecmwf_weekly_tp_percentile065_count_grid0.csv'
+    #filepath += 'ecmwf_weekly_tp_percentile065_count_grid0.csv'
     #filepath += 'ecmwf_weekly_tcc_geq_thresh70_count_grid0.csv'
     # filepath += 'ecmwf_weekly_st_geq_percentile065_count_grid0.csv'
     # filepath += 'ecmwf_weekly_sm_geq_percentile065_count_grid1.csv'

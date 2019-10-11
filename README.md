@@ -10,7 +10,7 @@ This thesis extends the Bayesian On-line CPD forefront by proposing a special mo
 
       .
       ├── BOCPDMPP_Slides.pdf     # Summary of project in slides
-      ├── BOCPDMPP_V2_0.pdf       # 20,000 word thesis on BOCPDMPP
+      ├── BOCPDMPP_V2_0.pdf       # Full thesis on BOCPDMPP
       ├── BVAR_NIG.py
       ├── BVAR_NIG_DPD.py
       ├── Evaluation_tool.py

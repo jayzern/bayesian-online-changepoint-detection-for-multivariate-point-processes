@@ -24,8 +24,7 @@ This thesis extends the Bayesian On-line CPD forefront by proposing a special mo
   ├── nearestPD.py
   ├── poisson_gamma_model.py
   ├── probability_model.py
-  ├── r_distr_plot.py
-  └── venv
+  └── r_distr_plot.py
 
 ## Installation
 

@@ -7,24 +7,25 @@ Bayesian On-line Changepoint Detection (CPD) is an active area of research in ma
 This thesis extends the Bayesian On-line CPD forefront by proposing a special model class for count data known as the Log Gaussian Cox Process, which falls under the realms of nonparametric Bayesian methods. We study the many attractive properties of this model including flexibility, and discuss various approximation methods to overcome issues in intractability. Next,we attempt to speed-up the model using sparse approximations; and extend this to multivariate streams. To benchmark the performance of this model, we apply it on two real-world and one synthetic dataset.
 
 ## Directory
-  .
-  ├── BOCPDMPP_Slides.pdf     # Summary of project in slides
-  ├── BOCPDMPP_V2_0.pdf       # Full detailed thesis on BOCPDMPP
-  ├── BVAR_NIG.py
-  ├── BVAR_NIG_DPD.py
-  ├── Evaluation_tool.py
-  ├── LGCP_test.py            # Test file
-  ├── cp_probability_model.py
-  ├── detector.py
-  ├── example_data
-  ├── generate_data.py
-  ├── lgcp_model.py           # Univariate Log Gaussian Cox Process
-  ├── mlgcp_model.py          # Multivariate Log Gaussian Cox Process
-  ├── multinomial_dirichlet_model.py
-  ├── nearestPD.py
-  ├── poisson_gamma_model.py
-  ├── probability_model.py
-  └── r_distr_plot.py
+
+      .
+      ├── BOCPDMPP_Slides.pdf     # Summary of project in slides
+      ├── BOCPDMPP_V2_0.pdf       # Full detailed thesis on BOCPDMPP
+      ├── BVAR_NIG.py
+      ├── BVAR_NIG_DPD.py
+      ├── Evaluation_tool.py
+      ├── LGCP_test.py            # Test file
+      ├── cp_probability_model.py
+      ├── detector.py
+      ├── example_data
+      ├── generate_data.py
+      ├── lgcp_model.py           # Univariate Log Gaussian Cox Process
+      ├── mlgcp_model.py          # Multivariate Log Gaussian Cox Process
+      ├── multinomial_dirichlet_model.py
+      ├── nearestPD.py
+      ├── poisson_gamma_model.py
+      ├── probability_model.py
+      └── r_distr_plot.py
 
 ## Installation
 

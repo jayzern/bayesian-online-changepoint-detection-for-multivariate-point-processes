@@ -22,57 +22,11 @@ from cp_probability_model import CpModel
 from detector import Detector
 from r_distr_plot import r_data_plot, r_distr_plot
 
+
 def test():
 
-    filepath = '../data/'
-
-    """Artificial datasets"""
-    filepath += 'PS_len10_stretch1.csv'
-    #filepath += 'PS_len20_stretch1.csv'
-    #filepath += 'PS_len30_stretch1.csv'
-    #filepath += 'PS_len10_stretch2.csv'
-    #filepath += 'PS_len10_stretch3.csv'
-    #filepath += 'PS_len10_stretch0p5.csv'
-    #filepath += 'PS_len10_stretch0p33.csv'
-    #filepath += 'PS_linear.csv'
-    #filepath += 'PS_cyclic.csv'
-    #filepath += 'PS_combined.csv'
-
-    """Property Transaction"""
-    #filepath += 'property_transactions_monthly_england_scale1000.csv'
-    #filepath += 'property_transactions_monthly_england.csv'
-
-    """Dow Jones Volume"""
-    #filepath += 'MSFT_dowjones_volume_scale1000000.csv'
-    #filepath += 'MSFT_dowjones_volume.csv'
-
-    """Cervest"""
-    #filepath += 'ecmwf_weekly_tp_percentile065_count_grid0.csv'
-    #filepath += 'ecmwf_weekly_tcc_geq_thresh70_count_grid0.csv'
-    #filepath += 'ecmwf_weekly_st_geq_percentile065_count_grid0.csv'
-    #filepath += 'ecmwf_weekly_sm_geq_percentile065_count_grid1.csv'
-    #filepath += 'ecmwf_weekly_t2m_geq_percentile065_count_grid0.csv'
-    #filepath += 'ecmwf_monthly_tp_percentile065_count_grid0.csv'
-    #filepath += 'ecmwf_monthly_tcc_geq_thresh70_count_grid0.csv'
-    #filepath += 'ecmwf_monthly_st_geq_percentile065_count_grid0.csv'
-    #filepath += 'ecmwf_monthly_sm_geq_percentile065_count_grid1.csv'
-    #filepath += 'ecmwf_monthly_t2m_geq_percentile065_count_grid0.csv'
-
-    """Multivariate"""
-    #filepath += 'mPS.csv'
-    #filepath += 'mPS3.csv'
-    #filepath += 'test.csv'
-
-    #filepath += 'mPS_len5_stretch1.csv'
-    #filepath += 'mPS_len10_stretch1.csv'
-    # filepath += 'mPS_len15_stretch1.csv'
-    #filepath += 'mPS_len5_stretch2.csv'
-    #filepath += 'mPS_len5_stretch3.csv'
-    # filepath += 'mPS_len5_stretch0p5.csv'
-    # filepath += 'mPS_len5_stretch0p33.csv'
-
-    #filepath += 'ecmwf_monthly_multivariate.csv'
-    #filepath += 'ecmwf_weekly_multivariate.csv'
+    filepath = './example_data/'
+    filepath += 'toy_data.csv'
 
     with open(filepath) as f:
         colnames = f.readline().split(",")
@@ -128,7 +82,7 @@ def test():
     """Single model"""
     detector = Detector(
         data,
-        np.array([mlgcp_model]),
+        np.array([lgcp_model]),
         np.array([1]),
         cp_model,
         s1,

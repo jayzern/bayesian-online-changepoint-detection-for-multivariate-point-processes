@@ -14,6 +14,7 @@ import GPy
 
 from probability_model import ProbabilityModel
 
+
 class mLGCPModel(ProbabilityModel):
 
     """
@@ -59,17 +60,16 @@ class mLGCPModel(ProbabilityModel):
     """
 
     def __init__(self,
-                prior_signal_variance,
-                prior_lengthscale,
-                custom_kernel,
-                inference_method,
-                refresh_rate,
-                S1,
-                S2,
-                M_pseudo_input_size=10,
-                auto_prior_update=False
-                ):
-
+                 prior_signal_variance,
+                 prior_lengthscale,
+                 custom_kernel,
+                 inference_method,
+                 refresh_rate,
+                 S1,
+                 S2,
+                 M_pseudo_input_size=10,
+                 auto_prior_update=False
+                 ):
         """Initialize prior quantities for kernel"""
         self.prior_signal_variance = prior_signal_variance
         self.prior_lengthscale = prior_lengthscale
@@ -100,7 +100,6 @@ class mLGCPModel(ProbabilityModel):
         self.count = 0
         self.refresh_rate = refresh_rate
 
-
     def initialization(self, y, cp_model, model_prior):
         """function which is only called ONCE, namely when the very first
         lattice of observations y is obtained/observed. Called from the
@@ -110,7 +109,7 @@ class mLGCPModel(ProbabilityModel):
 
         """Handle zero values for GPy error by adding a small value epsilon
         DEBUG: possibly find an alternative way to handle zero values"""
-        if (y==0).any():
+        if (y == 0).any():
             epsilon = 0.01
             y = y + epsilon
 
@@ -123,8 +122,15 @@ class mLGCPModel(ProbabilityModel):
         """Reshape to [t * output_dim,2].
         Column 0 is the time.
         Columns 1 is the dimension."""
-        x_init = np.hstack((
-            np.zeros(self.S1)[:,np.newaxis], np.arange(self.S1)[:,np.newaxis]))
+        x_init = np.hstack(
+            (np.zeros(
+                self.S1)[
+                :,
+                np.newaxis],
+                np.arange(
+                self.S1)[
+                :,
+                np.newaxis]))
 
         """Instantiate the GP using one of the three methods:
         laplace, variational_inference, sparse_variational_inference"""
@@ -192,7 +198,7 @@ class mLGCPModel(ProbabilityModel):
             but is more efficient."""
 
             """First column is y. Second column is the dimension label."""
-            y_init = np.hstack((y_init,np.arange(self.S1)[:,np.newaxis]))
+            y_init = np.hstack((y_init, np.arange(self.S1)[:, np.newaxis]))
 
             with gpflow.defer_build():
                 """BUGS:
@@ -268,7 +274,7 @@ class mLGCPModel(ProbabilityModel):
             and space from O(N^2) to O(NM)"""
 
             """First column is y. Second column is the dimension label."""
-            y_init = np.hstack((y_init,np.arange(self.S1)[:,np.newaxis]))
+            y_init = np.hstack((y_init, np.arange(self.S1)[:, np.newaxis]))
 
             with gpflow.defer_build():
 
@@ -345,13 +351,13 @@ class mLGCPModel(ProbabilityModel):
         r_equal_0 = (self.model_log_evidence +
                      np.log(cp_model.pmf_0(0) + epsilon))
         r_larger_0 = (self.model_log_evidence +
-                     np.log(cp_model.pmf_0(1)+ epsilon))
+                      np.log(cp_model.pmf_0(1) + epsilon))
         self.joint_log_probabilities = np.array([r_equal_0, r_larger_0])
 
         """Update the sufficient statistics.
         Note: Following the naming convention from PG and MDGP"""
-        self.retained_run_lengths = np.array([0,0])
-        self.sums = np.array([y,y])
+        self.retained_run_lengths = np.array([0, 0])
+        self.sums = np.array([y, y])
 
     def evaluate_predictive_log_distribution(self, y, t):
         """Returns the log densities of *y* using the predictive posteriors
@@ -362,7 +368,7 @@ class mLGCPModel(ProbabilityModel):
 
         """Handle zero values for GPy error by adding a small value epsilon
         DEBUG: possibly find an alternative way to handle zero values"""
-        if (y==0).any():
+        if (y == 0).any():
             epsilon = 0.01
             y = y + epsilon
 
@@ -370,9 +376,9 @@ class mLGCPModel(ProbabilityModel):
 
         """Evaluate the predictive posteriors of *y* for all possible run-lengths"""
         factors = (self.retained_run_lengths + 1)
-        factors = factors[:,np.newaxis]
+        factors = factors[:, np.newaxis]
         factors = factors.astype(np.float64)
-        sums = np.full((factors.size,self.S1,1), y)
+        sums = np.full((factors.size, self.S1, 1), y)
 
         """Compute log predictive density
         p(y_{*}|D) = p(y_{*}|f_{*})p(f_{*}|\mu_{*}\\sigma^{2}_{*})
@@ -383,13 +389,13 @@ class mLGCPModel(ProbabilityModel):
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
             y_list = []
             for i in range(self.S1):
-                y_list.append(sums[:,i])
+                y_list.append(sums[:, i])
             y = np.vstack(y_list)
 
             pred_log_dist = self.m.log_predictive_density(x, y)
@@ -400,22 +406,22 @@ class mLGCPModel(ProbabilityModel):
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
             y_list = []
             for i in range(self.S1):
                 y_at_index_i = np.hstack((
-                    sums[:,i], np.full(len(sums[:,i]), i)[:,np.newaxis]))
+                    sums[:, i], np.full(len(sums[:, i]), i)[:, np.newaxis]))
                 y_list.append(y_at_index_i)
             y = np.vstack(y_list)
 
             pred_log_dist = self.m.predict_density(x, y)
 
             """Take the first column only. Reshape."""
-            pred_log_dist = pred_log_dist[:,0]
-            pred_log_dist = pred_log_dist[:,np.newaxis]
+            pred_log_dist = pred_log_dist[:, 0]
+            pred_log_dist = pred_log_dist[:, np.newaxis]
 
         elif self.inference_method == 'sparse_variational_inference':
 
@@ -423,29 +429,29 @@ class mLGCPModel(ProbabilityModel):
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
             y_list = []
             for i in range(self.S1):
                 y_at_index_i = np.hstack((
-                    sums[:,i], np.full(len(sums[:,i]), i)[:,np.newaxis]))
+                    sums[:, i], np.full(len(sums[:, i]), i)[:, np.newaxis]))
                 y_list.append(y_at_index_i)
             y = np.vstack(y_list)
 
             pred_log_dist = self.m.predict_density(x, y)
 
             """Take the first column only. Reshape."""
-            pred_log_dist = pred_log_dist[:,0]
-            pred_log_dist = pred_log_dist[:,np.newaxis]
+            pred_log_dist = pred_log_dist[:, 0]
+            pred_log_dist = pred_log_dist[:, np.newaxis]
 
         """Split by self.S1 dimensions. Add them together.
         Flip it because run-lengths are stored in the opposite direction"""
         pred_log_dist_list = np.split(pred_log_dist, self.S1)
         pred_log_dist = sum(pred_log_dist_list)
         pred_log_dist = np.flip(pred_log_dist)
-        pred_log_dist = pred_log_dist[:,0]
+        pred_log_dist = pred_log_dist[:, 0]
 
         return pred_log_dist
 
@@ -457,7 +463,7 @@ class mLGCPModel(ProbabilityModel):
 
         """Handle zero values for GPy error by adding a small value epsilon
         DEBUG: possibly find an alternative way to handle zero values"""
-        if (y==0).any():
+        if (y == 0).any():
             epsilon = 0.01
             y = y + epsilon
 
@@ -479,7 +485,7 @@ class mLGCPModel(ProbabilityModel):
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
@@ -495,38 +501,42 @@ class mLGCPModel(ProbabilityModel):
             """Reshape x and y to include dimensions in second column"""
             x_list = []
             for i in range(self.S1):
-                x_at_index_i = np.hstack((
-                    factors,
-                    np.full(factors.size, i)[:,np.newaxis].astype(np.float64)))
+                x_at_index_i = np.hstack(
+                    (factors, np.full(
+                        factors.size, i)[
+                        :, np.newaxis].astype(
+                        np.float64)))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
-            y = np.hstack((y,np.arange(self.S1)[:,np.newaxis]))
+            y = np.hstack((y, np.arange(self.S1)[:, np.newaxis]))
 
             pred_log_prior_dist = self.m.predict_density(x, y)
 
             """Take the first column only. Reshape. """
-            pred_log_prior_dist = pred_log_prior_dist[:,0]
-            pred_log_prior_dist = pred_log_prior_dist[:,np.newaxis]
+            pred_log_prior_dist = pred_log_prior_dist[:, 0]
+            pred_log_prior_dist = pred_log_prior_dist[:, np.newaxis]
 
         elif self.inference_method == 'sparse_variational_inference':
 
             """Reshape x and y to include dimensions in second column"""
             x_list = []
             for i in range(self.S1):
-                x_at_index_i = np.hstack((
-                    factors,
-                    np.full(factors.size, i)[:,np.newaxis].astype(np.float64)))
+                x_at_index_i = np.hstack(
+                    (factors, np.full(
+                        factors.size, i)[
+                        :, np.newaxis].astype(
+                        np.float64)))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
-            y = np.hstack((y,np.arange(self.S1)[:,np.newaxis]))
+            y = np.hstack((y, np.arange(self.S1)[:, np.newaxis]))
 
             pred_log_prior_dist = self.m.predict_density(x, y)
 
             """Take the first column only. Reshape. """
-            pred_log_prior_dist = pred_log_prior_dist[:,0]
-            pred_log_prior_dist = pred_log_prior_dist[:,np.newaxis]
+            pred_log_prior_dist = pred_log_prior_dist[:, 0]
+            pred_log_prior_dist = pred_log_prior_dist[:, np.newaxis]
 
         """Split by self.S1 dimensions and take sum."""
         pred_log_prior_dist_list = np.split(pred_log_prior_dist, self.S1)
@@ -534,14 +544,14 @@ class mLGCPModel(ProbabilityModel):
 
         return pred_log_prior_dist
 
-    def update_predictive_distributions(self, y, t, r_evaluations = None):
+    def update_predictive_distributions(self, y, t, r_evaluations=None):
         """Takes the next observation, *y*, at time *t* and updates the
         the lgcp by refitting it and optimising it from its previous state.
         """
 
         """Handle zero values for GPy error by adding a small value epsilon
         DEBUG: possibly find an alternative way to handle zero values"""
-        if (y==0).any():
+        if (y == 0).any():
             epsilon = 0.01
             y = y + epsilon
 
@@ -554,7 +564,7 @@ class mLGCPModel(ProbabilityModel):
         self.retained_run_lengths = self.retained_run_lengths + 1
         self.retained_run_lengths = np.insert(self.retained_run_lengths, 0, 0)
 
-        factors = self.retained_run_lengths[:,np.newaxis]
+        factors = self.retained_run_lengths[:, np.newaxis]
 
         if self.inference_method == 'laplace':
 
@@ -562,13 +572,13 @@ class mLGCPModel(ProbabilityModel):
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
             y_list = []
             for i in range(self.S1):
-                y_list.append(self.sums[:,i])
+                y_list.append(self.sums[:, i])
             y = np.vstack(y_list)
 
             self.m.set_XY(x, y)
@@ -579,21 +589,22 @@ class mLGCPModel(ProbabilityModel):
             self.count = self.count + 1
 
             """Optimise model for every factor of the refresh_rate"""
-            if (self.count%self.refresh_rate == 0):# or (self.count <= self.refresh_rate):
+            if (self.count % self.refresh_rate ==
+                    0):  # or (self.count <= self.refresh_rate):
 
                 """Reshape x and y to include dimensions in second column"""
                 x_list = []
                 for i in range(self.S1):
                     x_at_index_i = np.hstack((
-                        factors, np.full(factors.size, i)[:,np.newaxis]))
+                        factors, np.full(factors.size, i)[:, np.newaxis]))
                     x_list.append(x_at_index_i)
                 x = np.vstack(x_list).astype(np.float64)
 
                 y_list = []
                 for i in range(self.S1):
                     y_at_index_i = np.hstack((
-                        self.sums[:,i],
-                        np.full(len(self.sums[:,i]), i)[:,np.newaxis]))
+                        self.sums[:, i],
+                        np.full(len(self.sums[:, i]), i)[:, np.newaxis]))
                     y_list.append(y_at_index_i)
                 y = np.vstack(y_list).astype(np.float64)
 
@@ -613,37 +624,37 @@ class mLGCPModel(ProbabilityModel):
             self.count = self.count + 1
 
             """Optimise model for every factor of the refresh_rate"""
-            if (self.count%self.refresh_rate == 0):
+            if (self.count % self.refresh_rate == 0):
 
                 """Method 1:Choose Z inducing points uniformly with length M."""
                 M = self.M
                 if int(len(np.array(self.retained_run_lengths))) < M:
                     """If population size is small, then just take Z=X"""
-                    z = self.retained_run_lengths[:,np.newaxis]
+                    z = self.retained_run_lengths[:, np.newaxis]
                 else:
                     z = np.round(np.linspace(
-                        0, self.retained_run_lengths[-1], M))[:,np.newaxis]
+                        0, self.retained_run_lengths[-1], M))[:, np.newaxis]
 
                 """Reshape x, y, z to include dimensions in second column"""
                 x_list = []
                 for i in range(self.S1):
                     x_at_index_i = np.hstack((
-                        factors, np.full(factors.size, i)[:,np.newaxis]))
+                        factors, np.full(factors.size, i)[:, np.newaxis]))
                     x_list.append(x_at_index_i)
                 x = np.vstack(x_list).astype(np.float64)
 
                 y_list = []
                 for i in range(self.S1):
                     y_at_index_i = np.hstack((
-                        self.sums[:,i],
-                        np.full(len(self.sums[:,i]), i)[:,np.newaxis]))
+                        self.sums[:, i],
+                        np.full(len(self.sums[:, i]), i)[:, np.newaxis]))
                     y_list.append(y_at_index_i)
                 y = np.vstack(y_list).astype(np.float64)
 
                 z_list = []
                 for i in range(self.S1):
                     z_at_index_i = np.hstack((
-                        z, np.full(z.size, i)[:,np.newaxis]))
+                        z, np.full(z.size, i)[:, np.newaxis]))
                     z_list.append(z_at_index_i)
                 z = np.vstack(z_list).astype(np.float64)
 
@@ -659,12 +670,11 @@ class mLGCPModel(ProbabilityModel):
                 self.m.compile()
                 gpflow.train.ScipyOptimizer().minimize(self.m)
 
-
     def get_posterior_expectation(self, t, r_list=None):
         """get the predicted value/expectation from the current posteriors
         at time point t, for all possible run-lengths"""
 
-        factors = self.retained_run_lengths[:,np.newaxis]
+        factors = self.retained_run_lengths[:, np.newaxis]
 
         if self.inference_method == 'laplace':
 
@@ -672,48 +682,46 @@ class mLGCPModel(ProbabilityModel):
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
             post_mean, post_var = self.m._raw_predict(x)
-
 
         elif self.inference_method == 'variational_inference':
 
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
             post_mean, post_var = self.m.predict_y(x)
 
             """Take first column and reshape."""
-            post_mean = post_mean[:,0]
-            post_mean = post_mean[:,np.newaxis]
+            post_mean = post_mean[:, 0]
+            post_mean = post_mean[:, np.newaxis]
 
         elif self.inference_method == 'sparse_variational_inference':
 
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
             post_mean, post_var = self.m.predict_y(x)
 
             """Take first column and reshape."""
-            post_mean = post_mean[:,0]
-            post_mean = post_mean[:,np.newaxis]
-
+            post_mean = post_mean[:, 0]
+            post_mean = post_mean[:, np.newaxis]
 
         """Split by self.S1 dimensions and add them together"""
-        post_mean_list= np.split(post_mean, self.S1)
+        post_mean_list = np.split(post_mean, self.S1)
         post_mean = np.hstack(post_mean_list)
-        post_mean = post_mean[:,:,np.newaxis]
+        post_mean = post_mean[:, :, np.newaxis]
 
         return post_mean
 
@@ -722,27 +730,27 @@ class mLGCPModel(ProbabilityModel):
         time point t, for all possible run-lengths.
         """
 
-        factors = self.retained_run_lengths[:,np.newaxis]
+        factors = self.retained_run_lengths[:, np.newaxis]
 
         if self.inference_method == 'laplace':
 
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
 
             """Get full covariance matrix for all dimensions for all time"""
-            post_mean, covariance = self.m._raw_predict(x,full_cov=True)
-            #print(covariance.shape)
+            post_mean, covariance = self.m._raw_predict(x, full_cov=True)
+            # print(covariance.shape)
 
         elif self.inference_method == 'variational_inference':
 
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
             post_mean, covariance = self.m.predict_f_full_cov(x)
@@ -753,7 +761,7 @@ class mLGCPModel(ProbabilityModel):
             x_list = []
             for i in range(self.S1):
                 x_at_index_i = np.hstack((
-                    factors, np.full(factors.size, i)[:,np.newaxis]))
+                    factors, np.full(factors.size, i)[:, np.newaxis]))
                 x_list.append(x_at_index_i)
             x = np.vstack(x_list)
             post_mean, covariance = self.m.predict_f_full_cov(x)
@@ -763,13 +771,15 @@ class mLGCPModel(ProbabilityModel):
         run_length_num = self.retained_run_lengths.shape[0]
 
         """Loop all run-lengths. Get corresponding cov(j,k) values per time index"""
-        placeholder = np.zeros((run_length_num,self.S1*self.S2,self.S1*self.S2))
-        for i in range(0,placeholder.shape[0]): # for loop all run-lengths
-            cov_at_time_i = np.zeros((self.S1*self.S2,self.S1*self.S2))
+        placeholder = np.zeros(
+            (run_length_num, self.S1 * self.S2, self.S1 * self.S2))
+        for i in range(0, placeholder.shape[0]):  # for loop all run-lengths
+            cov_at_time_i = np.zeros((self.S1 * self.S2, self.S1 * self.S2))
             for j in range(self.S1):
                 for k in range(self.S1):
-                    cov_at_time_i[j,k] = covariance[i + j * self.S1, i + k * self.S1]
-            placeholder[i,:,:] = cov_at_time_i
+                    cov_at_time_i[j, k] = covariance[i +
+                                                     j * self.S1, i + k * self.S1]
+            placeholder[i, :, :] = cov_at_time_i
         covariance = placeholder
 
         return covariance
@@ -813,7 +823,8 @@ class mLGCPModel(ProbabilityModel):
 
         """Flip the kept_run_lengths"""
         self.sums = self.sums[np.flip(kept_run_lengths)]
-        self.retained_run_lengths = self.retained_run_lengths[np.flip(kept_run_lengths)]
+        self.retained_run_lengths = self.retained_run_lengths[np.flip(
+            kept_run_lengths)]
 
         """Update p(y), the objective function of the model being optimised"""
         if self.inference_method == 'laplace':

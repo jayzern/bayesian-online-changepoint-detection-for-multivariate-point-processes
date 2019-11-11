@@ -26,7 +26,8 @@ from r_distr_plot import r_data_plot, r_distr_plot
 def test():
 
     filepath = './example_data/'
-    filepath += 'toy_data.csv'
+
+    filepath += 'ManchesterByTheSea.csv'
 
     with open(filepath) as f:
         colnames = f.readline().split(",")
@@ -59,12 +60,13 @@ def test():
         prior_signal_variance=1,
         prior_lengthscale=1,
         custom_kernel=None,
-        inference_method='laplace', #'laplace', 'variational_inference', 'sparse_variational_inference',
+        inference_method='laplace',
+        # 'laplace', 'variational_inference', 'sparse_variational_inference',
         refresh_rate=8,
         M_pseudo_input_size=10,
         S1=s1,
         S2=s2,
-        auto_prior_update=True, #put false for now True
+        auto_prior_update=True,  # put false for now True
     )
 
     mlgcp_model = mLGCPModel(
@@ -88,10 +90,10 @@ def test():
         s1,
         s2,
         T,
-        threshold = pruning_threshold, # None for now, pruning_threshold
-        trim_type = "keep_K",
-        store_mrl = True,
-        store_rl = True
+        threshold=pruning_threshold,  # None for now, pruning_threshold
+        trim_type="keep_K",
+        store_mrl=True,
+        store_rl=True
     )
 
     """Multiple models"""
@@ -116,8 +118,8 @@ def test():
     print("Running CP detection...")
     j = 0
     for t in range(0, T):
-        detector.next_run(data[t, :], t+1)
-        if t >= j*T//100:
+        detector.next_run(data[t, :], t + 1)
+        if t >= j * T // 100:
             print(j, "% Complete")
             j += 1
 
@@ -131,13 +133,14 @@ def test():
         data,
         T,
         detector,
-        s1*s2,
+        s1 * s2,
         dateindex=float(0),
         dateincr=float(1),
-        #title="",
-        #ylabel="",
-        #xlabel=""
+        # title="",
+        # ylabel="",
+        # xlabel=""
     )
+
 
 if __name__ == "__main__":
     test()

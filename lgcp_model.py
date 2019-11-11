@@ -14,6 +14,7 @@ import GPy
 
 from probability_model import ProbabilityModel
 
+
 class LGCPModel(ProbabilityModel):
     """
     Statistical model:
@@ -58,17 +59,16 @@ class LGCPModel(ProbabilityModel):
     """
 
     def __init__(self,
-                prior_signal_variance,
-                prior_lengthscale,
-                custom_kernel,
-                inference_method,
-                refresh_rate,
-                S1,
-                S2,
-                M_pseudo_input_size=10,
-                auto_prior_update=False
-                ):
-
+                 prior_signal_variance,
+                 prior_lengthscale,
+                 custom_kernel,
+                 inference_method,
+                 refresh_rate,
+                 S1,
+                 S2,
+                 M_pseudo_input_size=10,
+                 auto_prior_update=False
+                 ):
         """Initialize prior quantities for kernel"""
         self.prior_signal_variance = prior_signal_variance
         self.prior_lengthscale = prior_lengthscale
@@ -97,7 +97,7 @@ class LGCPModel(ProbabilityModel):
 
         """Initialize count and refresh rate for batch updating"""
         self.count = 0
-        self.refresh_rate = refresh_rate;
+        self.refresh_rate = refresh_rate
 
     def initialization(self, y, cp_model, model_prior):
         """function which is only called ONCE, namely when the very first
@@ -163,10 +163,10 @@ class LGCPModel(ProbabilityModel):
             """Build the GP model via the above setting"""
             self.m = GPy.core.GP(
                 x, y,
-                kernel = self.kernel,
-                inference_method = laplace_inf,
-                likelihood = self.likelihood,
-                mean_function = self.mean_function
+                kernel=self.kernel,
+                inference_method=laplace_inf,
+                likelihood=self.likelihood,
+                mean_function=self.mean_function
             )
 
             self.m.optimize()
@@ -208,7 +208,8 @@ class LGCPModel(ProbabilityModel):
                     2) add jitter or white kernel with small variance
                     3) logistic transform"""
                     self.kernel.variance.prior = gpflow.priors.Exponential(1)
-                    self.kernel.lengthscales.prior = gpflow.priors.Exponential(1)
+                    self.kernel.lengthscales.prior = gpflow.priors.Exponential(
+                        1)
 
                     """Add Bias to offset default mean at 1"""
                     self.kernel += gpflow.kernels.Bias(input_dim=1)
@@ -269,7 +270,8 @@ class LGCPModel(ProbabilityModel):
                     """Optional: specifying prior avoids numerical overflow,
                     due to kernel not being PSD, hence cholesky decomp doesn't work"""
                     self.kernel.variance.prior = gpflow.priors.Exponential(1)
-                    self.kernel.lengthscales.prior = gpflow.priors.Exponential(1)
+                    self.kernel.lengthscales.prior = gpflow.priors.Exponential(
+                        1)
 
                     """Add Bias to offset default mean at 1"""
                     self.kernel += gpflow.kernels.Bias(input_dim=1)
@@ -317,13 +319,13 @@ class LGCPModel(ProbabilityModel):
         r_equal_0 = (self.model_log_evidence +
                      np.log(cp_model.pmf_0(0) + epsilon))
         r_larger_0 = (self.model_log_evidence +
-                     np.log(cp_model.pmf_0(1)+ epsilon))
+                      np.log(cp_model.pmf_0(1) + epsilon))
         self.joint_log_probabilities = np.array([r_equal_0, r_larger_0])
 
         """Update the sufficient statistics.
         Note: Following the same naming convention as the PG and MDGP model"""
-        self.retained_run_lengths = np.array([0,0])
-        self.sums = np.array([y,y])
+        self.retained_run_lengths = np.array([0, 0])
+        self.sums = np.array([y, y])
 
     def evaluate_predictive_log_distribution(self, y, t):
         """Returns the log densities of *y* using the predictive posteriors
@@ -343,9 +345,9 @@ class LGCPModel(ProbabilityModel):
         """Method 1:
         Evaluate the predictive posteriors of *y* for all possible run-lengths"""
         factors = (self.retained_run_lengths + 1)
-        factors = factors[:,np.newaxis]
+        factors = factors[:, np.newaxis]
         factors = factors.astype(np.float64)
-        sums = np.full((factors.size,1),  y).astype(np.float64)
+        sums = np.full((factors.size, 1), y).astype(np.float64)
 
         """Compute log predictive density
         p(y_{*}|D) = p(y_{*}|f_{*})p(f_{*}|\mu_{*}\\sigma^{2}_{*})
@@ -362,8 +364,7 @@ class LGCPModel(ProbabilityModel):
         pred_log_dist = np.flip(pred_log_dist)
 
         """Reshape to [t,] size for every time t"""
-        return pred_log_dist[:,0]
-
+        return pred_log_dist[:, 0]
 
     def evaluate_log_prior_predictive(self, y, t):
         """Returns the prior log density of the predictive distribution
@@ -397,9 +398,9 @@ class LGCPModel(ProbabilityModel):
             pred_log_prior_dist = self.m.predict_density(factors, y)
 
         """Reshape to [1,] size for every time t"""
-        return pred_log_prior_dist[:,0]
+        return pred_log_prior_dist[:, 0]
 
-    def update_predictive_distributions(self, y, t, r_evaluations = None):
+    def update_predictive_distributions(self, y, t, r_evaluations=None):
         """Takes the next observation, *y*, at time *t* and updates the
         the lgcp by refitting it and optimising it from its previous state.
         """
@@ -426,8 +427,8 @@ class LGCPModel(ProbabilityModel):
         - Use self.count for batch optimisation."""
 
         if self.inference_method == 'laplace':
-            x = self.retained_run_lengths[:,np.newaxis].astype(np.float64)
-            y = self.sums[:,:,0]
+            x = self.retained_run_lengths[:, np.newaxis].astype(np.float64)
+            y = self.sums[:, :, 0]
 
             self.m.set_XY(x, y)
             self.m.optimize(max_iters=1000)
@@ -437,11 +438,11 @@ class LGCPModel(ProbabilityModel):
             self.count = self.count + 1
 
             """Optimise model for every factor of the refresh_rate"""
-            if (self.count%self.refresh_rate == 0):
+            if (self.count % self.refresh_rate == 0):
                 with gpflow.defer_build():
                     self.m = gpflow.models.VGP(
-                        X=self.retained_run_lengths[:,np.newaxis].astype(np.float64),
-                        Y=self.sums[:,:,0],
+                        X=self.retained_run_lengths[:, np.newaxis].astype(np.float64),
+                        Y=self.sums[:, :, 0],
                         kern=self.kernel,
                         likelihood=self.likelihood,
                         mean_function=self.mean_function
@@ -456,7 +457,7 @@ class LGCPModel(ProbabilityModel):
             self.count = self.count + 1
 
             """Optimise model for every factor of the refresh_rate"""
-            if (self.count%self.refresh_rate == 0):
+            if (self.count % self.refresh_rate == 0):
 
                 """Method 1:Choose Z inducing points uniformly with length M."""
                 M = self.M
@@ -464,7 +465,8 @@ class LGCPModel(ProbabilityModel):
                     """If population size is small, then just take Z=X"""
                     Z = self.retained_run_lengths
                 else:
-                    Z = np.round(np.linspace(0, self.retained_run_lengths[-1], M))
+                    Z = np.round(np.linspace(
+                        0, self.retained_run_lengths[-1], M))
 
                 """Method 2: Randomly choose inducing points with length M = percent * N"""
                 # percent = 0.2
@@ -487,11 +489,11 @@ class LGCPModel(ProbabilityModel):
 
                 with gpflow.defer_build():
                     self.m = gpflow.models.SVGP(
-                        X=self.retained_run_lengths[:,np.newaxis].astype(np.float64),
-                        Y=self.sums[:,:,0],
+                        X=self.retained_run_lengths[:, np.newaxis].astype(np.float64),
+                        Y=self.sums[:, :, 0],
                         kern=self.kernel,
                         likelihood=self.likelihood,
-                        Z=Z[:,np.newaxis]
+                        Z=Z[:, np.newaxis]
                     )
 
                 """Compile and optimise"""
@@ -504,15 +506,15 @@ class LGCPModel(ProbabilityModel):
 
         if self.inference_method == 'laplace':
             post_mean, post_var = self.m._raw_predict(
-                self.retained_run_lengths[:,np.newaxis])
+                self.retained_run_lengths[:, np.newaxis])
         elif self.inference_method == 'variational_inference':
             post_mean, post_var = self.m.predict_y(
-                self.retained_run_lengths[:,np.newaxis])
+                self.retained_run_lengths[:, np.newaxis])
         elif self.inference_method == 'sparse_variational_inference':
             post_mean, post_var = self.m.predict_y(
-                self.retained_run_lengths[:,np.newaxis])
+                self.retained_run_lengths[:, np.newaxis])
 
-        return post_mean[:,np.newaxis]
+        return post_mean[:, np.newaxis]
 
     def get_posterior_variance(self, t, r_list=None):
         """get the predicted variance from the current posteriors at
@@ -521,15 +523,15 @@ class LGCPModel(ProbabilityModel):
 
         if self.inference_method == 'laplace':
             post_mean, post_var = self.m._raw_predict(
-                self.retained_run_lengths[:,np.newaxis])
+                self.retained_run_lengths[:, np.newaxis])
         elif self.inference_method == 'variational_inference':
             post_mean, post_var = self.m.predict_y(
-                self.retained_run_lengths[:,np.newaxis])
+                self.retained_run_lengths[:, np.newaxis])
         elif self.inference_method == 'sparse_variational_inference':
             post_mean, post_var = self.m.predict_y(
-                self.retained_run_lengths[:,np.newaxis])
+                self.retained_run_lengths[:, np.newaxis])
 
-        return post_var[:,np.newaxis]
+        return post_var[:, np.newaxis]
 
     def prior_update(self, t, r_list=None):
         """Update the prior variance and lengthscale by setting the optimised
@@ -571,7 +573,8 @@ class LGCPModel(ProbabilityModel):
 
         """Flip the kept_run_lengths"""
         self.sums = self.sums[np.flip(kept_run_lengths)]
-        self.retained_run_lengths = self.retained_run_lengths[np.flip(kept_run_lengths)]
+        self.retained_run_lengths = self.retained_run_lengths[np.flip(
+            kept_run_lengths)]
 
         """Update p(y), the objective function of the model being optimised"""
         if self.inference_method == 'laplace':

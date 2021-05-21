@@ -2,5 +2,5 @@ numpy==1.17.2
 matplotlib==3.1.1
 gpflow==1.5.0
 GPy==1.9.8
-tensorflow==1.14
+tensorflow==2.5.0
 scipy==1.1.0
